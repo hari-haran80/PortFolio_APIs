@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application Confirmation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Playwrite+HU:wght@100..400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-weight: 800 !important;
+            font-family: "Libre Baskerville", serif;
+        }
+        .EmailMainDiv {   
+            background: linear-gradient(135deg, #02f684, #9201f9);
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+        }
+        .contentDiv {
+            padding: 10px;
+            width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: justify;
+        }
+        .contentDiv p,
+        .contentDiv ul li {
+            margin-top: 15px;
+            font-size: 15px;
+            text-align: justify;
+            color: whitesmoke;
+            letter-spacing: 0.5px;
+            line-height: 1.3rem;
+        }
+        .contentDiv ul {
+            list-style-position: inside;
+        }
+        .ContactLinks a {
+            color: orangered;
+            text-decoration: none;
+        }
+        .firstChild,
+        .ThridChild,
+        .NinthChild {
+            font-weight: 900 !important;
+            font-size: 17px !important;
+            color: #db2777 !important; /* Tailwind pink-600 */
+        }
+        .FifthChild {
+            margin-top: 25px !important;
+        }
+        .Regards,
+        .ContactLinks {
+            margin-top: 0 !important;
+        }
+        img {
+            width: 200px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        @media screen and (max-width:720px) {
+            .contentDiv {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="EmailMainDiv">
+        <div class="contentDiv">
+            <img src="../static//images/Logo.png" alt="">
+            <p class="firstChild">Dear {{name}},</p>
+            <p>Thank you for applying for the position of {{job_title}} at our EmayamTech Private Limited. We have received your application and will review it shortly.</p>
+            <p class="ThridChild">Here are the details we received:</p>
+            <ul>
+                <li>Name: {{name}}</li>
+                <li>Email: {{email}}</li>
+                <li>Mobile Number: {{mobile_number}}</li>
+                <li>Experience: {{experience}} years</li>
+                <li>Current Location: {{current_location}}</li>
+                <li>Subject: {{subject}}</li>
+            </ul>
+            <p class="FifthChild">Our HR team will review your application and get back to you within the next few days.</p>
+            <p>In the meantime, feel free to explore our website for more information about our services and other career opportunities.</p>
+            <p>If you have any questions or need further assistance, please don’t hesitate to contact us at <a style="color: orangered; text-decoration:none;" href="tel:+918111066066">+91 81110 66066</a>.</p>
+            <p>Thank you for considering a career with us!</p>
+            <p class="NinthChild">Best Regards,</p>
+            <p>HR Manager</p>
+            <p class="Regards">Emayamtech Private Limited,</p>
+            <p class="ContactLinks">Contact Number: <a href="tel:+918111066066">+91 81110 66066</a></p>
+            <p class="ContactLinks">Email: <a href="mailto:sales@emayamtech.com">sales@emayamtech.com</a></p><br>
+        </div>
+    </div>
+</body>
+</html>
