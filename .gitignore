@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Env
+.env
+venv/
+ENV/
+*.env
+env
+
+# Django static/media
+/media/
+staticfiles/
+
+# VS Code and other IDEs
+.vscode/
+.idea/
+
+# Migrations (optional)
+**/migrations/*.pyc
+**/migrations/__pycache__/
