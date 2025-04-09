@@ -33,6 +33,10 @@ INSTALLED_APPS = [
     'Apps.Authentication_App',
     'Apps.Profile_App',
     'Apps.Contact_App',
+    'Apps.Projects_app',
+    'Apps.Resume_app',
+    'Apps.Review_app',
+    'Apps.Skills_app',
 ]
 
 MIDDLEWARE = [

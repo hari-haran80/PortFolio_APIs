@@ -7,7 +7,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('Auth/', include('Apps.Authentication_App.urls')),
     path('User/', include('Apps.Profile_App.urls')),
-    path('Contact/', include('Apps.Contact_App.urls')),
+    path('Resume/', include('Apps.Resume_app.urls')),
+    path('Project/', include('Apps.Projects_app.urls')),
+    path('Review/', include('Apps.Review_app.urls')),
+    path('Skills/', include('Apps.Skills_app.urls')),
 ]
 
 if settings.DEBUG:
