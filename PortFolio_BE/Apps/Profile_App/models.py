@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-cipher = Fernet(settings.ENCRYPTION_KEY)
+# Initialize cipher with the encryption key from settings
+cipher_suite = Fernet(settings.ENCRYPTION_KEY)
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -25,19 +26,21 @@ class Profile(models.Model):
     class Meta:
         db_table = "User_Profile"
         
-    def __str__(self):
-        return self.user.username
-        
     def save(self, *args, **kwargs):
-        if self.profile_picture and isinstance(self.profile_picture, bytes) and not self.profile_picture.startswith(b'gAAAAA'):
-            # Encrypt only if not already encrypted
-            self.profile_picture = cipher.encrypt(self.profile_picture)
+        if self.profile_picture and isinstance(self.profile_picture, bytes):
+            # Check if the data is already encrypted (Fernet tokens always start with gAAAAA)
+            if not self.profile_picture.startswith(b'gAAAAA'):
+                # Encrypt only if not already encrypted
+                self.profile_picture = cipher_suite.encrypt(self.profile_picture)
         super().save(*args, **kwargs)
 
     def get_decrypted_profile_picture(self):
         """Decrypt the profile picture for retrieval"""
         if self.profile_picture and self.profile_picture.startswith(b'gAAAAA'):
-            return cipher.decrypt(self.profile_picture)
+            try:
+                return cipher_suite.decrypt(self.profile_picture)
+            except:
+                return None
         return None
 
 

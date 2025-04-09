@@ -16,7 +16,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+FRONTEND_URL = "http://127.0.0.1:8000"
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'Apps.Resume_app',
     'Apps.Review_app',
     'Apps.Skills_app',
+    'Apps.Theme_app',
 ]
 
 MIDDLEWARE = [

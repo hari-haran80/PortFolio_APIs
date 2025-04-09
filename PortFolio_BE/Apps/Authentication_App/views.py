@@ -4,7 +4,6 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
-import random
 from .serializers import *
 from .models import *
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -14,7 +13,6 @@ from django.contrib.auth import update_session_auth_hash
 from Apps.Profile_App.models import Profile
 from django.utils.crypto import get_random_string
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 
 User = get_user_model()
 
@@ -159,7 +157,7 @@ class ForgotPasswordAPIView(APIView):
                 PasswordResetToken.objects.create(user=user, token=token)
 
                 # Send email with reset link
-                reset_link = f"{settings.FRONTEND_URL}/reset-password/{token}/"
+                reset_link = f"{settings.FRONTEND_URL}/Auth/reset-password/{token}/"
                 send_mail(
                     'Password Reset Request',
                     f'Click the link to reset your password: {reset_link}',

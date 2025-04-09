@@ -7,13 +7,13 @@ class ProfileListCreateView(generics.ListCreateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [permissions.AllowAny]  # Allows access to everyone
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Changed from AllowAny for better security
 
 class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [permissions.AllowAny]  # Allows access to everyone
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Changed from AllowAny for better security
 
     def perform_destroy(self, instance):
         # Delete the associated user when the profile is deleted

@@ -2,6 +2,11 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Profile
 import base64
+from cryptography.fernet import Fernet
+from django.conf import settings
+
+# Initialize cipher with the encryption key from settings
+cipher_suite = Fernet(settings.ENCRYPTION_KEY)
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,10 +59,10 @@ class ProfileSerializer(serializers.ModelSerializer):
                     profile_picture_base64 = profile_picture_base64.split(',')[1]
                 # Decode the Base64 string to binary data
                 binary_data = base64.b64decode(profile_picture_base64)
-                # Encrypt the binary data (assuming `cipher` is defined elsewhere)
-                internal_value['profile_picture'] = cipher.encrypt(binary_data)
+                # Encrypt the binary data
+                internal_value['profile_picture'] = cipher_suite.encrypt(binary_data)
             except Exception as e:
-                raise serializers.ValidationError({"profile_picture": "Invalid Base64 encoding."})
+                raise serializers.ValidationError({"profile_picture": "Invalid Base64 encoding or encryption failed."})
         else:
             internal_value['profile_picture'] = None
     
@@ -66,11 +71,22 @@ class ProfileSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         user = User.objects.create_user(**user_data)
-        # Create the profile with the same ID as the user
         profile = Profile.objects.create(user=user, **validated_data)
         return profile
 
     def update(self, instance, validated_data):
-        # Extract nested user data
         user_data = validated_data.pop('user', None)
-       
+        if user_data:
+            user = instance.user
+            for attr, value in user_data.items():
+                if attr == 'password':
+                    user.set_password(value)
+                else:
+                    setattr(user, attr, value)
+            user.save()
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        return instance
