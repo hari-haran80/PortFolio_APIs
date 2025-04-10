@@ -5,17 +5,14 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-# Initialize cipher with the encryption key from settings
 cipher_suite = Fernet(settings.ENCRYPTION_KEY)
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_picture = models.BinaryField(blank=True, null=True)  # Store encrypted binary data
-    GENDER_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
-        ('O', 'Other'),
-    ]
+    profile_picture = models.BinaryField(blank=True, null=True)
+    image_type = models.CharField(max_length=50, blank=True, null=True)  # To store MIME type (like image/png)
+
+    GENDER_CHOICES = [('M', 'Male'), ('F', 'Female'), ('O', 'Other')]
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='O')
     position = models.CharField(max_length=100, default='Employee')
     phone_number = models.CharField(max_length=15, default='+1234567890')
@@ -25,17 +22,14 @@ class Profile(models.Model):
 
     class Meta:
         db_table = "User_Profile"
-        
+
     def save(self, *args, **kwargs):
         if self.profile_picture and isinstance(self.profile_picture, bytes):
-            # Check if the data is already encrypted (Fernet tokens always start with gAAAAA)
             if not self.profile_picture.startswith(b'gAAAAA'):
-                # Encrypt only if not already encrypted
                 self.profile_picture = cipher_suite.encrypt(self.profile_picture)
         super().save(*args, **kwargs)
 
     def get_decrypted_profile_picture(self):
-        """Decrypt the profile picture for retrieval"""
         if self.profile_picture and self.profile_picture.startswith(b'gAAAAA'):
             try:
                 return cipher_suite.decrypt(self.profile_picture)

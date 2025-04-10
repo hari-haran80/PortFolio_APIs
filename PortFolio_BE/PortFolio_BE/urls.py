@@ -10,7 +10,7 @@ urlpatterns = [
     path('Resume/', include('Apps.Resume_app.urls')),
     path('Project/', include('Apps.Projects_app.urls')),
     path('Review/', include('Apps.Review_app.urls')),
-    path('Skills/', include('Apps.Skills_app.urls')),
+    path('', include('Apps.Skills_app.urls')),
     path('User/', include('Apps.Theme_app.urls')),
     path('Contact/', include('Apps.Contact_App.urls')),
 ]

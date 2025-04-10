@@ -1,21 +1,20 @@
 from rest_framework import generics, permissions
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Profile
 from .serializers import ProfileSerializer
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class ProfileListCreateView(generics.ListCreateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Changed from AllowAny for better security
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Changed from AllowAny for better security
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_destroy(self, instance):
-        # Delete the associated user when the profile is deleted
         instance.user.delete()
         super().perform_destroy(instance)
