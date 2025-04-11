@@ -13,6 +13,7 @@ urlpatterns = [
     path('', include('Apps.Skills_app.urls')),
     path('User/', include('Apps.Theme_app.urls')),
     path('Contact/', include('Apps.Contact_App.urls')),
+    path('about/', include('Apps.About_app.urls')),
 ]
 
 if settings.DEBUG:

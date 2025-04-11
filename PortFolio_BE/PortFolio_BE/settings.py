@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'Apps.Review_app',
     'Apps.Skills_app',
     'Apps.Theme_app',
+    'Apps.About_app',
 ]
 
 MIDDLEWARE = [
