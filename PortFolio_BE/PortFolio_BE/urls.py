@@ -8,7 +8,7 @@ urlpatterns = [
     path('Auth/', include('Apps.Authentication_App.urls')),
     path('User/', include('Apps.Profile_App.urls')),
     path('Resume/', include('Apps.Resume_app.urls')),
-    path('Project/', include('Apps.Projects_app.urls')),
+    path('My-Own/', include('Apps.Projects_app.urls')),
     path('User/', include('Apps.Review_app.urls')),
     path('', include('Apps.Skills_app.urls')),
     path('User/', include('Apps.Theme_app.urls')),
