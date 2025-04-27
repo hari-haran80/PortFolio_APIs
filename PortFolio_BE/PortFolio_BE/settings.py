@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -130,6 +131,17 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+# settings.py (add these at the bottom)
+GITHUB_TOKEN = "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"
+GITHUB_USERNAME = "hari-haran80"
 
 STATIC_URL = 'static/'
 

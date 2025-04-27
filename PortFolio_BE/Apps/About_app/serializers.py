@@ -8,6 +8,8 @@ class LanguageSerializer(serializers.ModelSerializer):
 
 class AboutMeSerializer(serializers.ModelSerializer):
     languages = LanguageSerializer(many=True, read_only=True)
+    # Add this to ensure the experience field is included in responses
+    experience = serializers.CharField(read_only=True)
 
     class Meta:
         model = AboutMe
