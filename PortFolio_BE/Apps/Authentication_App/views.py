@@ -13,6 +13,7 @@ from django.contrib.auth import update_session_auth_hash
 from Apps.Profile_App.models import Profile
 from django.utils.crypto import get_random_string
 from django.contrib.auth import get_user_model
+from django.http import JsonResponse
 
 User = get_user_model()
 
@@ -191,5 +192,9 @@ class ResetPasswordAPIView(APIView):
             return Response({'message': 'Password reset successfully.'}, status=status.HTTP_200_OK)
         return Response({'message': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
     
+
+
+def health_check(request):
+    return JsonResponse({"status": "ok"}, status=200)
 
 
