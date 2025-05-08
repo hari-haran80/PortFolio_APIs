@@ -94,8 +94,16 @@ WSGI_APPLICATION = 'PortFolio_BE.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'freedb_Hari_DB',
+        'USER': 'freedb_Hariharan',
+        'PASSWORD': 'a&k8pqyxVzK2CRF',
+        'HOST': 'sql.freedb.tech',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        },
     }
 }
 
