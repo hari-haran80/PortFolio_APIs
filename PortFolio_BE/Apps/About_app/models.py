@@ -56,6 +56,8 @@ class Language(models.Model):
     about_me = models.ForeignKey(AboutMe, related_name='languages', on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     level = models.CharField(max_length=50)
+    proficiency = models.IntegerField(default=0)
+    color = models.CharField(max_length=50, default="green")
 
     def __str__(self):
         return f"{self.name} ({self.level})"

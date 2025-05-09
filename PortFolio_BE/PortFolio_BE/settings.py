@@ -88,6 +88,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'PortFolio_BE.wsgi.application'
 
+# default Enging
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
+    }
+}
+
 
 # freeDB Database
 
@@ -126,23 +135,23 @@ WSGI_APPLICATION = 'PortFolio_BE.wsgi.application'
 # }
 
 # AWS Database
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"  # Correct for memory optimization
+# SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"  # Correct for memory optimization
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Portfolio_DB',
-        'USER': 'admin',
-        'PASSWORD': 'Hariharan80$',  #⚠️ **Security Risk**: Never hardcode passwords! Use environment variables.
-        'HOST': 'hari-db.cq3imwemgk2k.us-east-1.rds.amazonaws.com',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'connect_timeout': 30,  # ← **Critical for Render free tier** (prevents hangs)
-        },
-        'CONN_MAX_AGE': 300,  # ← Moved outside 'OPTIONS' (was nested incorrectly)
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'Portfolio_DB',
+#         'USER': 'admin',
+#         'PASSWORD': 'Hariharan80$',
+#         'HOST': 'hari-db.cq3imwemgk2k.us-east-1.rds.amazonaws.com',
+#         'PORT': '3306',
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+#             'connect_timeout': 30,  # ← **Critical for Render free tier** (prevents hangs)
+#         },
+#         'CONN_MAX_AGE': 300,  # ← Moved outside 'OPTIONS' (was nested incorrectly)
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
