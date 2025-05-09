@@ -89,24 +89,57 @@ TEMPLATES = [
 WSGI_APPLICATION = 'PortFolio_BE.wsgi.application'
 
 
-# Database
+# freeDB Database
+
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'freedb_Hari_DB',
+#         'USER': 'freedb_Hariharan',
+#         'PASSWORD': 'a&k8pqyxVzK2CRF',
+#         'HOST': 'sql.freedb.tech',
+#         'PORT': '3306',
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+#             'charset': 'utf8mb4',
+#         },
+#     }
+# }
+
+# railway DataBase
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'railway',
+#         'USER': 'root',
+#         'PASSWORD': 'FhDgShlRLakunNISVohouwuHMthAMREr',
+#         'HOST': 'hopper.proxy.rlwy.net',
+#         'PORT': 26738,
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',
+#             'ssl_mode': 'REQUIRED',  # Railway enforces SSL
+#         },
+#     }
+# }
+
+# AWS Database
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'freedb_Hari_DB',
-        'USER': 'freedb_Hariharan',
-        'PASSWORD': 'a&k8pqyxVzK2CRF',
-        'HOST': 'sql.freedb.tech',
+        'NAME': 'Portfolio_DB',  # Replace this with your actual DB name
+        'USER': 'admin',
+        'PASSWORD': 'Hariharan80$',
+        'HOST': 'hari-db.cq3imwemgk2k.us-east-1.rds.amazonaws.com',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': 'utf8mb4',
         },
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
