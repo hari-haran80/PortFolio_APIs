@@ -60,14 +60,14 @@ REST_FRAMEWORK = {
 }
 
 # Email settings
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'hariharan.a69@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'pcvx oyxl oyso mquz')
-EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
-ADMIN_EMAIL = 'hariharan.a6998@gmail.com'  # The email address where admin notifications will be sent
-
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'hariharan.a69@gmail.com'
+EMAIL_HOST_PASSWORD = 'lyrv ekne vwmf luzo'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DEFAULT_FROM_EMAIL = 'hariharan.a69@gmail.com'  # Should match EMAIL_HOST_USER
+ADMIN_EMAIL = 'hariharan.a6998@gmail.com'  # For admin notifications
 
 ROOT_URLCONF = 'PortFolio_BE.urls'
 
