@@ -16,7 +16,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-FRONTEND_URL = "http://127.0.0.1:8000"
+FRONTEND_URL = "http://localhost:3000"
 # Application definition
 
 INSTALLED_APPS = [

@@ -158,7 +158,7 @@ class ForgotPasswordAPIView(APIView):
                 PasswordResetToken.objects.create(user=user, token=token)
 
                 # Send email with reset link
-                reset_link = f"{settings.FRONTEND_URL}/Auth/reset-password/{token}/"
+                reset_link = f"{settings.FRONTEND_URL}/reset-password/{token}/"
                 send_mail(
                     'Password Reset Request',
                     f'Click the link to reset your password: {reset_link}',
