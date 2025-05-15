@@ -14,6 +14,8 @@ from Apps.Profile_App.models import Profile
 from django.utils.crypto import get_random_string
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
+from Apps.Theme_app.serializers import UserThemeSerializer
+from Apps.Theme_app.models import UserTheme
 
 User = get_user_model()
 
@@ -60,7 +62,6 @@ class RegisterUserAPIView(APIView):
 
         
 class LoginAPIView(APIView):
-
     permission_classes = []
 
     def post(self, request):
@@ -71,12 +72,21 @@ class LoginAPIView(APIView):
 
         if user:
             refresh = RefreshToken.for_user(user)
+
+            # Safer query - prevents MultipleObjectsReturned
+            theme = UserTheme.objects.filter(user=user).first()  # If user-specific
+            # theme = UserTheme.objects.first()  # If global
+
+            theme_data = UserThemeSerializer(theme).data if theme else {}
+
             return Response({
                 'user_id': user.id,
                 'is_superuser': user.is_superuser,
                 'access': str(refresh.access_token),
                 'refresh': str(refresh),
+                'theme': theme_data,
             }, status=status.HTTP_200_OK)
+
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutAPIView(APIView):
