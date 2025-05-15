@@ -191,6 +191,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://3d10c0bt-3000.inc1.devtunnels.ms",
+    "https://react-portfolio-new-y91w.onrender.com",
 
 ]
 
