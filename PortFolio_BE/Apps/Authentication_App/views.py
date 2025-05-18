@@ -16,6 +16,7 @@ from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from Apps.Theme_app.serializers import UserThemeSerializer
 from Apps.Theme_app.models import UserTheme
+from rest_framework.decorators import api_view, permission_classes
 
 User = get_user_model()
 
@@ -208,3 +209,7 @@ def health_check(request):
     return JsonResponse({"status": "ok"}, status=200)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def verify_token(request):
+    return Response({"message": "Token is valid"}, status=200)
