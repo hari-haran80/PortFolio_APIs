@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',    
     'corsheaders',
+    'cloudinary',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
     'Apps.Authentication_App',
     'Apps.Profile_App',
@@ -90,27 +92,29 @@ WSGI_APPLICATION = 'PortFolio_BE.wsgi.application'
 
 # default Enging
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / "db.sqlite3",
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'Portfolio',
-#         'USER': 'neondb_owner',
-#         'PASSWORD': 'npg_ByLeo8qhk7Qm',
-#         'HOST': 'ep-wandering-bird-a1yztwnz-pooler.ap-southeast-1.aws.neon.tech',
-#         'PORT': '5432',
-#         'OPTIONS': {
-#             'sslmode': 'require',
-#             'channel_binding': 'require',
-#         },
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / "db.sqlite3",
 #     }
 # }
+
+# Neon postgress Database
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'Portfolio',
+        'USER': 'neondb_owner',
+        'PASSWORD': 'npg_ByLeo8qhk7Qm',
+        'HOST': 'ep-wandering-bird-a1yztwnz-pooler.ap-southeast-1.aws.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+            'channel_binding': 'require',
+        },
+    }
+}
 
 #  clever-cloud
 
@@ -257,5 +261,13 @@ cloudinary.config(
   secure=True
 )
 
+# Cloudinary storage settings
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dpxspxtpz',
+    'API_KEY': '863621263678824',
+    'API_SECRET': 'tSIaHDKKqfuO7bck_uRTlpjjhgI'
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 DEFAULT_PROFILE_PICTURE_URL = "https://res.cloudinary.com/dpxspxtpz/image/upload/v1751656732/profile_l1prwv.png"

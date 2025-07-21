@@ -28,24 +28,13 @@ class RegisterUserAPIView(APIView):
         if serializer.is_valid():
             user_data = serializer.validated_data
 
-            # Create the user
+            # Create the user - profile will be auto-created by signal
             user = User.objects.create_user(
                 username=user_data['username'],
                 first_name=user_data.get('first_name', ''),
                 last_name=user_data.get('last_name', ''),
                 email=user_data['email'],
                 password=user_data.get('password', 'defaultpassword')
-            )
-
-            # Create Profile if not exists
-            Profile.objects.get_or_create(
-                user=user,
-                defaults={
-                    'profile_picture': None,
-                    'gender': 'O',
-                    'position': 'Employee',
-                    'phone_number': '+1234567890'
-                }
             )
 
             # Send email notification

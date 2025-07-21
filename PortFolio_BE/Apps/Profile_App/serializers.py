@@ -1,10 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Profile
-from cryptography.fernet import Fernet
 from django.conf import settings
-
-cipher_suite = Fernet(settings.ENCRYPTION_KEY)
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,35 +15,28 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     uploaded_image = serializers.ImageField(write_only=True, required=False)
+    profile_picture = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
-        fields = ['user', 'gender', 'position', 'phone_number', 'uploaded_image']
+        fields = ['user', 'gender', 'position', 'phone_number', 'uploaded_image', 'profile_picture']
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        decrypted = instance.get_decrypted_profile_picture()
-        if decrypted:
-            import base64
-            data['profile_picture'] = f"data:{instance.image_type};base64," + base64.b64encode(decrypted).decode()
-        else:
-            data['profile_picture'] = None
-        return data
+    def get_profile_picture(self, obj):
+        if obj.profile_picture:
+            return obj.profile_picture.url
+        return settings.DEFAULT_PROFILE_PICTURE_URL
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         image = validated_data.pop('uploaded_image', None)
 
         user = User.objects.create_user(**user_data)
-
         profile = Profile(user=user, **validated_data)
 
         if image:
-            binary_data = image.read()
-            profile.profile_picture = cipher_suite.encrypt(binary_data)
-            profile.image_type = image.content_type
+            profile.profile_picture = image
+            profile.save()
 
-        profile.save()
         return profile
 
     def update(self, instance, validated_data):
@@ -66,9 +56,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
 
         if image:
-            binary_data = image.read()
-            instance.profile_picture = cipher_suite.encrypt(binary_data)
-            instance.image_type = image.content_type
+            instance.profile_picture = image
 
         instance.save()
         return instance
