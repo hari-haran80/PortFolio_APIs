@@ -97,6 +97,37 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'Portfolio',
+#         'USER': 'neondb_owner',
+#         'PASSWORD': 'npg_ByLeo8qhk7Qm',
+#         'HOST': 'ep-wandering-bird-a1yztwnz-pooler.ap-southeast-1.aws.neon.tech',
+#         'PORT': '5432',
+#         'OPTIONS': {
+#             'sslmode': 'require',
+#             'channel_binding': 'require',
+#         },
+#     }
+# }
+
+#  clever-cloud
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'bj4b51psb2hbucmojhau',
+#         'USER': 'u0nq1jdvtvvdqksm',
+#         'PASSWORD': 'qpsbDo6jssKTqnIKQRcy',
+#         'HOST': 'bj4b51psb2hbucmojhau-mysql.services.clever-cloud.com',
+#         'PORT': '3306',
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+#         }
+#     }
+# }
+
 
 # freeDB Database
 
@@ -214,3 +245,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ENCRYPTION_KEY = b'neqyoFnUFgBzMzjPHDxSQ_-qXVRUxBnZDhf2aGnfHUU='
+
+
+import cloudinary
+
+# Cloudinary configuration
+cloudinary.config( 
+  cloud_name="dpxspxtpz",
+  api_key="863621263678824",
+  api_secret="tSIaHDKKqfuO7bck_uRTlpjjhgI",
+  secure=True
+)
+
+
+DEFAULT_PROFILE_PICTURE_URL = "https://res.cloudinary.com/dpxspxtpz/image/upload/v1751656732/profile_l1prwv.png"

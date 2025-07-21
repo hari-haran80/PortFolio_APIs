@@ -24,17 +24,21 @@ class Profile(models.Model):
         db_table = "User_Profile"
 
     def save(self, *args, **kwargs):
-        if self.profile_picture and isinstance(self.profile_picture, bytes):
-            if not self.profile_picture.startswith(b'gAAAAA'):
-                self.profile_picture = cipher_suite.encrypt(self.profile_picture)
+        if self.profile_picture:
+            data = bytes(self.profile_picture) if isinstance(self.profile_picture, memoryview) else self.profile_picture
+            if not data.startswith(b'gAAAAA'):
+                self.profile_picture = cipher_suite.encrypt(data)
         super().save(*args, **kwargs)
 
     def get_decrypted_profile_picture(self):
-        if self.profile_picture and self.profile_picture.startswith(b'gAAAAA'):
-            try:
-                return cipher_suite.decrypt(self.profile_picture)
-            except:
-                return None
+        if self.profile_picture:
+            data = bytes(self.profile_picture) if isinstance(self.profile_picture, memoryview) else self.profile_picture
+            if data.startswith(b'gAAAAA'):
+                try:
+                    return cipher_suite.decrypt(data)
+                except:
+                    return None
+            return data
         return None
 
 
