@@ -19,3 +19,4 @@ env
 # Migrations (optional)
 **/migrations/*.pyc
 **/migrations/__pycache__/
+# db.sqlite3
