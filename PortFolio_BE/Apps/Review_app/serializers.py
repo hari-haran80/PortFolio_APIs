@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Review
+from django.conf import settings
 
 class UserProfileSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
@@ -13,11 +14,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_profile_picture(self, obj):
         if hasattr(obj, 'profile'):
             profile = obj.profile
-            decrypted = profile.get_decrypted_profile_picture()
-            if decrypted:
-                import base64
-                return f"data:{profile.image_type};base64," + base64.b64encode(decrypted).decode()
-        return None
+            if profile.profile_picture:
+                return profile.profile_picture.url
+        return settings.DEFAULT_PROFILE_PICTURE_URL
 
     def get_position(self, obj):
         if hasattr(obj, 'profile'):
