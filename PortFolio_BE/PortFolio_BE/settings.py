@@ -92,29 +92,29 @@ WSGI_APPLICATION = 'PortFolio_BE.wsgi.application'
 
 # default Enging
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / "db.sqlite3",
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
+    }
+}
 
 # Neon postgress Database
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Portfolio',
-        'USER': 'neondb_owner',
-        'PASSWORD': 'npg_ByLeo8qhk7Qm',
-        'HOST': 'ep-wandering-bird-a1yztwnz-pooler.ap-southeast-1.aws.neon.tech',
-        'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': 'require',
-            'channel_binding': 'require',
-        },
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'Portfolio',
+#         'USER': 'neondb_owner',
+#         'PASSWORD': 'npg_ByLeo8qhk7Qm',
+#         'HOST': 'ep-wandering-bird-a1yztwnz-pooler.ap-southeast-1.aws.neon.tech',
+#         'PORT': '5432',
+#         'OPTIONS': {
+#             'sslmode': 'require',
+#             'channel_binding': 'require',
+#         },
+#     }
+# }
 
 #  clever-cloud
 
