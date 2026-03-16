@@ -17,6 +17,7 @@ from django.http import JsonResponse
 from Apps.Theme_app.serializers import UserThemeSerializer
 from Apps.Theme_app.models import UserTheme
 from rest_framework.decorators import api_view, permission_classes
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -61,6 +62,10 @@ class LoginAPIView(APIView):
         user = authenticate(username=username, password=password)
 
         if user:
+            # Update last_login timestamp explicitly for token-based auth
+            user.last_login = timezone.now()
+            user.save(update_fields=['last_login'])
+
             refresh = RefreshToken.for_user(user)
 
             # Safer query - prevents MultipleObjectsReturned
@@ -72,6 +77,7 @@ class LoginAPIView(APIView):
             return Response({
                 'user_id': user.id,
                 'is_superuser': user.is_superuser,
+                'last_login': user.last_login,
                 'access': str(refresh.access_token),
                 'refresh': str(refresh),
                 'theme': theme_data,

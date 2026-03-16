@@ -6,8 +6,11 @@ from django.conf import settings
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'is_superuser']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'is_superuser', 'last_login']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'last_login': {'read_only': True},
+        }
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
@@ -48,6 +51,9 @@ class ProfileSerializer(serializers.ModelSerializer):
             for attr, value in user_data.items():
                 if attr == 'password':
                     user.set_password(value)
+                elif attr == 'last_login':
+                    # last_login should be managed by auth events, not client updates
+                    continue
                 else:
                     setattr(user, attr, value)
             user.save()
