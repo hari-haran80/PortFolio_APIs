@@ -1,62 +1,65 @@
+import logging
+
+from django.conf import settings
+from django.core.mail import send_mail
 from rest_framework import generics, status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
+from rest_framework.throttling import ScopedRateThrottle
+
+from Apps.Authentication_App.permissions import IsSuperUser
 from .models import Contact
 from .serializers import ContactSerializer
-from django.core.mail import send_mail
-from django.conf import settings
-import logging
 
 logger = logging.getLogger(__name__)
 
+
 class ContactCreateView(generics.CreateAPIView):
-    permission_classes = []
+    """Public contact form. Rate limited to stop spam."""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "contact"
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
 
     def create(self, request, *args, **kwargs):
-        try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            
-            # Prepare success response
-            response_data = {
-                'success': True,
-                'status': 'created',
-                'message': 'Contact form submitted successfully',
-                'data': serializer.data
-            }
-            
-            return Response(response_data, status=status.HTTP_201_CREATED)
-            
-        except ValidationError as e:
-            logger.error(f"Validation error: {str(e)}")
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
             return Response({
                 'success': False,
                 'status': 'error',
                 'message': 'Validation failed',
-                'errors': e.detail
+                'errors': serializer.errors,
             }, status=status.HTTP_400_BAD_REQUEST)
-            
-        except Exception as e:
-            logger.error(f"Server error: {str(e)}")
+
+        try:
+            self.perform_create(serializer)
+        except Exception:
+            logger.exception("Failed to save contact submission")
             return Response({
                 'success': False,
                 'status': 'error',
-                'message': 'An error occurred while processing your request'
+                'message': 'An error occurred while processing your request',
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({
+            'success': True,
+            'status': 'created',
+            'message': 'Contact form submitted successfully',
+            'data': serializer.data,
+        }, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
         contact = serializer.save()
-        
-        # Email to user
+
+        # Email failures must never lose the submission, so they are only logged.
         try:
             send_mail(
-                subject='Contact Form Submitted Successfully',
+                subject='Thanks for reaching out!',
                 message=f"""Dear {contact.first_name} {contact.last_name},
-                
-Thank you for contacting us. We have received your message and our team will get back to you soon.
+
+Thank you for contacting me. I have received your message and will get back to you soon.
 
 Your details:
 - Email: {contact.email}
@@ -64,52 +67,47 @@ Your details:
 - Subject: {contact.subject}
 - Message: {contact.message}
 
-We'll respond within 24-48 hours.
+I usually respond within 24-48 hours.
 
 Best regards,
-Your Company Team""",
+Hariharan""",
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[contact.email],
-                fail_silently=False
+                fail_silently=False,
             )
-        except Exception as e:
-            logger.error(f"Failed to send user email: {str(e)}")
+        except Exception:
+            logger.exception("Failed to send contact confirmation email")
 
-        # Email to admin
         try:
             send_mail(
                 subject=f'New Contact Submission: {contact.subject}',
                 message=f"""New contact form submission:
-                
+
 Name: {contact.first_name} {contact.last_name}
 Email: {contact.email}
 Phone: {contact.phone_number or 'Not provided'}
 Subject: {contact.subject}
-Message: 
+Message:
 {contact.message}
 
 Submitted at: {contact.created_at}
 """,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[settings.ADMIN_EMAIL],
-                fail_silently=False
+                fail_silently=False,
             )
-        except Exception as e:
-            logger.error(f"Failed to send admin email: {str(e)}")
+        except Exception:
+            logger.exception("Failed to send contact admin notification")
 
-# Retrieve all contact entries
+
 class ContactListView(generics.ListAPIView):
-
-    permission_classes = []
-
-    queryset = Contact.objects.all()
+    """Admin only: contact submissions contain visitors' personal data."""
+    permission_classes = [IsSuperUser]
+    queryset = Contact.objects.order_by("-created_at")
     serializer_class = ContactSerializer
 
-# Retrieve, update, or delete a specific contact entry
+
 class ContactDetailView(generics.RetrieveUpdateDestroyAPIView):
-
-    permission_classes = []
-
+    permission_classes = [IsSuperUser]
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
-    
