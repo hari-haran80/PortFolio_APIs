@@ -142,3 +142,35 @@ class TotalCommitsTests(BaseAPITestCase):
         self.assertEqual(views._last_page_from_link_header(
             '<https://x/commits?per_page=1&page=7>; rel="last"'), 7)
         self.assertIsNone(views._last_page_from_link_header(""))
+
+
+class AboutValidationTests(BaseAPITestCase):
+    def setUp(self):
+        super().setUp()
+        self.auth(self.admin)
+
+    def test_experience_end_before_start_rejected(self):
+        res = self.client.post("/about/experience/", {
+            "title": "Dev", "company": "Co", "start_date": "2023-01-01", "end_date": "2022-01-01",
+        }, format="json")
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("end_date", res.json())
+
+    def test_current_job_without_end_date_ok(self):
+        res = self.client.post("/about/experience/", {
+            "title": "Dev", "company": "Co", "start_date": "2023-01-01",
+        }, format="json")
+        self.assertEqual(res.status_code, 201, res.content)
+
+    def test_education_years_validated(self):
+        res = self.client.post("/about/education/", {
+            "degree": "BE", "institution": "U", "start_year": 2020, "end_year": 2016,
+        }, format="json")
+        self.assertEqual(res.status_code, 400)
+
+    def test_language_proficiency_range(self):
+        about = make_about()
+        res = self.client.post("/about/languages/", {
+            "about_me": about.id, "name": "Tamil", "level": "Native", "proficiency": 150,
+        }, format="json")
+        self.assertEqual(res.status_code, 400)

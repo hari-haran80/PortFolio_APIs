@@ -3,7 +3,7 @@ from .models import Project
 from .serializers import ProjectSerializer
 
 class ProjectListCreateView(generics.ListCreateAPIView):
-    queryset = Project.objects.all().order_by('-created_at')
+    queryset = Project.objects.all().order_by("-created_at", "-id")
     serializer_class = ProjectSerializer
 
     def get_permissions(self):

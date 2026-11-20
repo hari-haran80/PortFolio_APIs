@@ -1,33 +1,88 @@
-from pathlib import Path
-import os
+"""
+Django settings for PortFolio_BE.
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+Every credential and environment-specific value comes from environment
+variables. They are loaded from a `.env` file next to manage.py (local) or
+from Render's secret file at /etc/secrets/.env. Real environment variables
+always win over the files. Nothing secret is hardcoded here.
+"""
+import os
+import sys
+from pathlib import Path
+
+import cloudinary
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+def _load_env_file(path):
+    """Minimal KEY=VALUE loader so no extra dependency is needed."""
+    try:
+        text = Path(path).read_text(encoding="utf-8")
+    except (FileNotFoundError, PermissionError, OSError):
+        return
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key, value = key.strip(), value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        os.environ.setdefault(key, value)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-mq7tmk+eg+jh=rr%u*mzc8#6aa3pjo8tnlueyn5r+g_m=m_jq+'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+_load_env_file(BASE_DIR / ".env")
+_load_env_file("/etc/secrets/.env")  # Render "Secret Files"
 
-ALLOWED_HOSTS = ["*"]
 
-FRONTEND_URL = "http://localhost:3000"
-# Application definition
+def env(name, default=""):
+    return os.environ.get(name, default)
+
+
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None or value.strip() == "":
+        return default
+    return value.strip().lower() in ("1", "true", "yes", "on")
+
+
+def env_list(name, default=""):
+    return [item.strip() for item in env(name, default).split(",") if item.strip()]
+
+
+TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
+
+# -----------------------------------------------------------------------------
+# Core
+# -----------------------------------------------------------------------------
+DEBUG = env_bool("DJANGO_DEBUG", False)
+
+SECRET_KEY = env("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    if DEBUG or TESTING:
+        SECRET_KEY = "django-insecure-local-only-not-for-production"
+    else:
+        raise RuntimeError(
+            "DJANGO_SECRET_KEY is not set. Create PortFolio_BE/.env (see .env.example) "
+            "or add it in Render -> Environment."
+        )
+
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,.onrender.com")
+ENCRYPTION_KEY = env("ENCRYPTION_KEY").encode() or None
+
+# Used to build links in emails (e.g. password reset).
+FRONTEND_URL = env("FRONTEND_URL", "http://localhost:3000").rstrip("/")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',    
+    'django.contrib.messages',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_simplejwt.token_blacklist',    
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'cloudinary',
     'cloudinary_storage',
@@ -71,17 +126,7 @@ REST_FRAMEWORK = {
 }
 
 # Password reset links expire after this many minutes.
-PASSWORD_RESET_TOKEN_TTL_MINUTES = 60
-
-# Email settings
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'hariharan.a69@gmail.com'
-EMAIL_HOST_PASSWORD = 'lyrv ekne vwmf luzo'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-DEFAULT_FROM_EMAIL = 'hariharan.a69@gmail.com'  # Should match EMAIL_HOST_USER
-ADMIN_EMAIL = 'hariharan.a6998@gmail.com'  # For admin notifications
+PASSWORD_RESET_TOKEN_TTL_MINUTES = int(env("PASSWORD_RESET_TOKEN_TTL_MINUTES", "60"))
 
 ROOT_URLCONF = 'PortFolio_BE.urls'
 
@@ -102,192 +147,128 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'PortFolio_BE.wsgi.application'
 
-# default Enging
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / "db.sqlite3",
+# -----------------------------------------------------------------------------
+# Database: DATABASE_URL (postgres://..., mysql://...) or the local SQLite file.
+# -----------------------------------------------------------------------------
+DATABASE_URL = env("DATABASE_URL")
+if DATABASE_URL and not TESTING:
+    import dj_database_url
+    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=300)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / "db.sqlite3",
+        }
     }
-}
-
-# Neon postgress Database
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'Portfolio',
-#         'USER': 'neondb_owner',
-#         'PASSWORD': 'npg_ByLeo8qhk7Qm',
-#         'HOST': 'ep-wandering-bird-a1yztwnz-pooler.ap-southeast-1.aws.neon.tech',
-#         'PORT': '5432',
-#         'OPTIONS': {
-#             'sslmode': 'require',
-#             'channel_binding': 'require',
-#         },
-#     }
-# }
-
-#  clever-cloud
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'bj4b51psb2hbucmojhau',
-#         'USER': 'u0nq1jdvtvvdqksm',
-#         'PASSWORD': 'qpsbDo6jssKTqnIKQRcy',
-#         'HOST': 'bj4b51psb2hbucmojhau-mysql.services.clever-cloud.com',
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-#         }
-#     }
-# }
-
-
-# freeDB Database
-
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'freedb_Hari_DB',
-#         'USER': 'freedb_Hariharan',
-#         'PASSWORD': 'a&k8pqyxVzK2CRF',
-#         'HOST': 'sql.freedb.tech',
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-#             'charset': 'utf8mb4',
-#         },
-#     }
-# }
-
-# railway DataBase
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'railway',
-#         'USER': 'root',
-#         'PASSWORD': 'FhDgShlRLakunNISVohouwuHMthAMREr',
-#         'HOST': 'hopper.proxy.rlwy.net',
-#         'PORT': 26738,
-#         'OPTIONS': {
-#             'charset': 'utf8mb4',
-#             'ssl_mode': 'REQUIRED',  # Railway enforces SSL
-#         },
-#     }
-# }
-
-# AWS Database
-# SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"  # Correct for memory optimization
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'Portfolio_DB',
-#         'USER': 'admin',
-#         'PASSWORD': 'Hariharan80$',
-#         'HOST': 'hari-db.cq3imwemgk2k.us-east-1.rds.amazonaws.com',
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-#             'connect_timeout': 30,  # ← **Critical for Render free tier** (prevents hangs)
-#         },
-#         'CONN_MAX_AGE': 300,  # ← Moved outside 'OPTIONS' (was nested incorrectly)
-#     }
-# }
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
+# -----------------------------------------------------------------------------
+# Email: Brevo HTTPS API when BREVO_API_KEY is set, otherwise SMTP (Gmail).
+# Without either, emails are printed to the console so nothing crashes.
+# -----------------------------------------------------------------------------
+BREVO_API_KEY = env("BREVO_API_KEY")
+EMAIL_HOST = env("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(env("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_TIMEOUT = 15
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "webmaster@localhost")
+DEFAULT_FROM_NAME = env("DEFAULT_FROM_NAME", "Portfolio")
+ADMIN_EMAIL = env("ADMIN_EMAIL", DEFAULT_FROM_EMAIL)
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+if BREVO_API_KEY:
+    EMAIL_BACKEND = 'Apps.Contact_App.email_backends.BrevoEmailBackend'
+elif EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://3d10c0bt-3000.inc1.devtunnels.ms",
-    "https://react-portfolio-new-y91w.onrender.com",
+# -----------------------------------------------------------------------------
+# CORS / CSRF
+# -----------------------------------------------------------------------------
+CORS_ALLOWED_ORIGINS = env_list(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000,https://react-portfolio-new-y91w.onrender.com",
+)
+CORS_ALLOW_ALL_ORIGINS = env_bool("CORS_ALLOW_ALL_ORIGINS", False)
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "https://*.onrender.com")
 
-]
+# -----------------------------------------------------------------------------
+# GitHub (About page commit counter)
+# -----------------------------------------------------------------------------
+GITHUB_TOKEN = env("GITHUB_TOKEN")
+GITHUB_USERNAME = env("GITHUB_USERNAME", "hari-haran80")
 
-CORS_ALLOW_ALL_ORIGINS = True
-
-# settings.py (add these at the bottom)
-GITHUB_TOKEN = "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"
-GITHUB_USERNAME = "hari-haran80"
-
+# -----------------------------------------------------------------------------
+# Static & media
+# -----------------------------------------------------------------------------
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# Django 5.1+ ignores STATICFILES_STORAGE / DEFAULT_FILE_STORAGE; use STORAGES.
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    # Non-manifest WhiteNoise storage: works with the committed staticfiles/
+    # folder even if collectstatic is not run on deploy.
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-ENCRYPTION_KEY = b'neqyoFnUFgBzMzjPHDxSQ_-qXVRUxBnZDhf2aGnfHUU='
-
-
-import cloudinary
-
-# Cloudinary configuration
-cloudinary.config( 
-  cloud_name="dpxspxtpz",
-  api_key="863621263678824",
-  api_secret="tSIaHDKKqfuO7bck_uRTlpjjhgI",
-  secure=True
+# -----------------------------------------------------------------------------
+# Cloudinary (profile pictures, project and skill images)
+# -----------------------------------------------------------------------------
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env("CLOUDINARY_CLOUD_NAME"),
+    'API_KEY': env("CLOUDINARY_API_KEY"),
+    'API_SECRET': env("CLOUDINARY_API_SECRET"),
+}
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'] or None,
+    api_key=CLOUDINARY_STORAGE['API_KEY'] or None,
+    api_secret=CLOUDINARY_STORAGE['API_SECRET'] or None,
+    secure=True,
 )
 
-# Cloudinary storage settings
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dpxspxtpz',
-    'API_KEY': '863621263678824',
-    'API_SECRET': 'tSIaHDKKqfuO7bck_uRTlpjjhgI'
-}
+# Public image URL (not a secret). It is also a model field default, so it keeps
+# a fixed fallback to avoid spurious migrations.
+DEFAULT_PROFILE_PICTURE_URL = env(
+    "DEFAULT_PROFILE_PICTURE_URL",
+    "https://res.cloudinary.com/dpxspxtpz/image/upload/v1751656732/profile_l1prwv.png",
+)
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# -----------------------------------------------------------------------------
+# Production hardening (DEBUG off)
+# -----------------------------------------------------------------------------
+if not DEBUG and not TESTING:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
 
-DEFAULT_PROFILE_PICTURE_URL = "https://res.cloudinary.com/dpxspxtpz/image/upload/v1751656732/profile_l1prwv.png"
-
-# Test-only overrides (python manage.py test): fast hashing, no real emails,
-# no throttling between test cases.
-import sys
-if "test" in sys.argv:
+# -----------------------------------------------------------------------------
+# Test-only overrides: no real emails, no external services, no throttling.
+# -----------------------------------------------------------------------------
+if TESTING:
     PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
     EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
     REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {'auth': '10000/hour', 'contact': '10000/hour'}
+    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
+    CLOUDINARY_STORAGE['CLOUD_NAME'] = CLOUDINARY_STORAGE['CLOUD_NAME'] or 'test-cloud'
+    cloudinary.config(cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'])

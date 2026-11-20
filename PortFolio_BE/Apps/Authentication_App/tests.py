@@ -185,11 +185,11 @@ class PasswordResetTests(BaseAPITestCase):
         token = PasswordResetToken.objects.get(user=self.user).token
         self.assertNotIn(token, res.content.decode())
 
-    def test_email_contains_hash_router_link(self):
+    def test_email_contains_reset_link(self):
         self.request_reset()
         token = PasswordResetToken.objects.get(user=self.user).token
         self.assertEqual(len(mail.outbox), 1)
-        self.assertIn(f"https://portfolio.example.com/#/reset-password/{token}", mail.outbox[0].body)
+        self.assertIn(f"https://portfolio.example.com/reset-password/{token}", mail.outbox[0].body)
 
     def test_unknown_email_gives_same_response(self):
         known = self.request_reset()

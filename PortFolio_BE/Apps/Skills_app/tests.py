@@ -37,3 +37,24 @@ class SkillTests(BaseAPITestCase):
         self.assertEqual(res.json()["fluency"], 85)
         self.assertEqual(self.client.delete(f"/api/skills/{skill_id}/").status_code, 204)
         self.assertEqual(self.client.delete(f"/api/skill-categories/{cat_id}/").status_code, 204)
+
+
+class SkillValidationTests(BaseAPITestCase):
+    def setUp(self):
+        super().setUp()
+        self.category = SkillCategory.objects.create(name="Backend")
+        self.auth(self.admin)
+
+    def test_fluency_must_be_0_to_100(self):
+        for bad in (-1, 101):
+            res = self.client.post("/api/skills/", {"category": self.category.id, "name": "X", "fluency": bad}, format="multipart")
+            self.assertEqual(res.status_code, 400, bad)
+
+    def test_non_image_upload_rejected(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        res = self.client.post("/api/skills/", {
+            "category": self.category.id, "name": "X", "fluency": 50,
+            "uploaded_image": SimpleUploadedFile("evil.html", b"<script>alert(1)</script>", content_type="text/html"),
+        }, format="multipart")
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("uploaded_image", res.json())

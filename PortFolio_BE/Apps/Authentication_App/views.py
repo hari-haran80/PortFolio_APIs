@@ -185,8 +185,7 @@ class ForgotPasswordAPIView(AuthThrottleMixin, APIView):
             token = get_random_string(length=32)
             PasswordResetToken.objects.create(user=user, token=token)
 
-            # The FE uses a hash router, so the route lives after "#".
-            reset_link = f"{settings.FRONTEND_URL}/#/reset-password/{token}"
+            reset_link = f"{settings.FRONTEND_URL}/reset-password/{token}"
             ttl = settings.PASSWORD_RESET_TOKEN_TTL_MINUTES
             try:
                 send_mail(
