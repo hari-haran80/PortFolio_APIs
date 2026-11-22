@@ -85,8 +85,11 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'cloudinary',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
+    # Must come AFTER staticfiles: cloudinary_storage ships its own collectstatic
+    # (for static files on Cloudinary) that crashes on Django 5.1+ and skips
+    # copying files to STATIC_ROOT. Listing it later keeps Django's command.
+    'cloudinary_storage',
     'Apps.Authentication_App',
     'Apps.Profile_App',
     'Apps.Contact_App',
